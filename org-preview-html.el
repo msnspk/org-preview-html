@@ -54,7 +54,7 @@
 
 (defcustom org-preview-html-refresh-configuration 'save
   "Specifies how often the HTML preview will be refreshed.
-  
+
 If `manual', update manually by running `org-preview-html-refresh'.
 If `save', update on save (default).
 If `export', update on manual export \(using `org-html-export-to-html').
@@ -94,6 +94,10 @@ Obselete as of version 0.3, instead use `org-preview-html-subtree-only'."
   :type 'boolean
   :group 'org-preview-html)
 
+(defcustom org-preview-html-preview-file-directory ""
+  "Directory where preview HTML files will be created."
+  :type 'string
+  :group 'org-preview-html)
 
 ;; Internal variables
 (defvar org-preview-html--browser-buffer nil)
@@ -196,8 +200,11 @@ Obselete as of version 0.3, instead use `org-preview-html-subtree-only'."
 
 (defun org-preview-html--open-browser ()
   "Open a browser to preview the exported HTML file."
-  ;; Store the exported HTML filename
-  (setq-local org-preview-html--html-file (concat (file-name-sans-extension buffer-file-name) ".html"))
+  ;; Unless the directory for preview files already exists, create it and any parent directories
+  (unless (file-exists-p org-preview-html-preview-file-directory)
+    (make-directory org-preview-html-preview-file-directory t))
+   ;; Store the exported HTML filename
+  (setq-local org-preview-html--html-file (concat org-preview-html-preview-file-directory (file-name-sans-extension (file-relative-name (buffer-file-name))) ".html"))
   (org-preview-html--org-export-html) ;; Export the org file to HTML
   ;; Procedure to open the side-by-side preview
   (split-window-right)
